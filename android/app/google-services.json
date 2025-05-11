@@ -1,0 +1,30 @@
+
+{
+  "project_info": {
+    "project_number": "1057035354050",
+    "project_id": "complaintvision-a1a54",
+    "storage_bucket": "complaintvision-a1a54.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1057035354050:android:dad571983d624ce88d605b",
+        "android_client_info": {
+          "package_name": "com.example.complaint_vision"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpjyzsj7WD5WV2_jllKc5WveLl6s2B99I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
