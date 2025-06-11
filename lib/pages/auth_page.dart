@@ -2,10 +2,12 @@ import 'package:complaint_vision/admin/admin_home_page.dart';
 import 'package:complaint_vision/providers/complaint_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'home_page.dart'; // Assuming HomePage is your landing page after login/signup
+import 'home_page.dart'; 
 import 'package:complaint_vision/widgets/square_tile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:complaint_vision/services/user_info.dart'; // Import your UserInfoService
+import 'package:complaint_vision/services/user_info.dart';
+import 'package:complaint_vision/utils/hash_utils.dart';
+
 
 class AuthPage extends StatefulWidget {
   @override
@@ -15,20 +17,19 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   bool _isSignUp = false;
 
-  // Controllers to handle text inputs
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // GlobalKey for form validation
+
   final _formKey = GlobalKey<FormState>();
 
   void _toggleForm() {
     setState(() {
-      _isSignUp = !_isSignUp; // Toggle between login and signup
-      _formKey.currentState?.reset(); // Reset form validation state
+      _isSignUp = !_isSignUp; 
+      _formKey.currentState?.reset();
       _nameController.clear();
       _emailController.clear();
       _phoneController.clear();
@@ -39,7 +40,7 @@ class _AuthPageState extends State<AuthPage> {
 
   String? _validateEmail(String? value) {
     final emailPattern =
-        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; // Simple email regex pattern
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; 
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
     } else if (!RegExp(emailPattern).hasMatch(value)) {
@@ -64,47 +65,45 @@ class _AuthPageState extends State<AuthPage> {
     return null;
   }
 
-  void _submitForm() async {
+ void _submitForm() async {
   if (_formKey.currentState!.validate()) {
     try {
       UserCredential userCredential;
       if (_isSignUp) {
-        // Sign Up user
         userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
         print('User signed up: ${userCredential.user!.email}');
       } else {
-        // Login user
         userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
         print('User logged in: ${userCredential.user!.email}');
       }
+      //anonymisation
+      final uid = userCredential.user!.uid;
 
-      // Store the user ID and email
+      final userHash = HashUtils.getUserHash(uid);
+      print("User Anonymous Hash: $userHash");
       UserInfoService.setUserInfo(
-        uid: userCredential.user!.uid,
+        uid: uid,
         userEmail: userCredential.user!.email!,
       );
 
-      // Fetch the user's complaints using ComplaintProvider
       await Provider.of<ComplaintProvider>(context, listen: false)
-          .fetchUserComplaints(userCredential.user!.uid); // Pass the userId here
-
-      // Navigate to HomePage or TrackPage
+          .fetchUserComplaints(uid); 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
       );
     } catch (e) {
       print('Error: $e');
-      // Show an error message (e.g., invalid email, wrong password)
     }
   }
 }
+
 
 
   @override
@@ -120,16 +119,16 @@ class _AuthPageState extends State<AuthPage> {
             ),
           ),
         ),
-        backgroundColor: Colors.green, // Green background for header
+        backgroundColor: Colors.green, 
         centerTitle: false,
         leading: IconButton(
-          icon: Icon(Icons.admin_panel_settings), // Use the default admin icon
+          icon: Icon(Icons.admin_panel_settings), 
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      AdminHomePage()), // Navigate to AdminHomePage
+                      AdminHomePage()),
             );
           },
         ),
@@ -139,7 +138,6 @@ class _AuthPageState extends State<AuthPage> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              // Centered login/signup form with floating box design
               Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -219,7 +217,6 @@ class _AuthPageState extends State<AuthPage> {
                         SizedBox(height: 15),
                       ],
 
-                      // Email Input
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
@@ -229,11 +226,10 @@ class _AuthPageState extends State<AuthPage> {
                             borderSide: BorderSide(color: Colors.blue),
                           ),
                         ),
-                        validator: _validateEmail, // Email validation
+                        validator: _validateEmail, 
                       ),
                       SizedBox(height: 15),
 
-                      // Password Input
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -244,11 +240,10 @@ class _AuthPageState extends State<AuthPage> {
                             borderSide: BorderSide(color: Colors.blue),
                           ),
                         ),
-                        validator: _validatePassword, // Password validation
+                        validator: _validatePassword,
                       ),
                       SizedBox(height: 10),
 
-                      // Confirm Password Input (only for Sign Up)
                       if (_isSignUp) ...[
                         TextFormField(
                           controller: _confirmPasswordController,
@@ -261,11 +256,10 @@ class _AuthPageState extends State<AuthPage> {
                             ),
                           ),
                           validator:
-                              _validateConfirmPassword, // Confirm password validation
+                              _validateConfirmPassword, 
                         ),
                         SizedBox(height: 10),
 
-                        // CAPTCHA confirmation
                         Text(
                           'Confirm you are not a robot',
                           style: TextStyle(fontSize: 12),
@@ -280,7 +274,6 @@ class _AuthPageState extends State<AuthPage> {
                         SizedBox(height: 10),
                       ],
 
-                      // "Forgot your password?" Text (only for Login)
                       if (!_isSignUp) ...[
                         TextButton(
                           onPressed: () {
@@ -293,10 +286,10 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                       ],
                       SizedBox(
-                        width: 200, // Customize the width (not full width)
-                        height: 50, // Customize the height
+                        width: 200, 
+                        height: 50, 
                         child: ElevatedButton(
-                          onPressed: _submitForm, // Trigger form submission
+                          onPressed: _submitForm, 
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
                                 vertical:
@@ -309,13 +302,12 @@ class _AuthPageState extends State<AuthPage> {
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors
-                                  .black, // Set font color here inside TextStyle
+                                  .black, 
                             ),
                           ),
                         ),
                       ),
 
-                      // Toggle to switch between Login and Sign Up
                       TextButton(
                         onPressed: _toggleForm,
                         child: Text(
@@ -329,9 +321,8 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Space before the OR divider
+              SizedBox(height: 20), 
 
-              // OR Divider
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 child: Row(
@@ -345,8 +336,6 @@ class _AuthPageState extends State<AuthPage> {
                   ],
                 ),
               ),
-
-              // Google and Facebook Buttons with Icons
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [

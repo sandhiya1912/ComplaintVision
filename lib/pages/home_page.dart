@@ -18,7 +18,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Store the available cameras here
   List<CameraDescription>? cameras;
 
   List<String> eventImages = [

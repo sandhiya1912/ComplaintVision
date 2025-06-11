@@ -7,9 +7,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:complaint_vision/providers/complaint_provider.dart';
 import 'track_page.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
-import 'package:path/path.dart' as path; // Import for file name handling
-// import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as path;
+
 
 class GrievancePage extends StatefulWidget {
   final File? cameraFile;

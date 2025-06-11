@@ -8,7 +8,6 @@ import 'providers/complaint_provider.dart'; // Adjust import based on your struc
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   // Initialize Firebase based on the platform (Web or Mobile)
   if (kIsWeb) {
     await Firebase.initializeApp(
@@ -23,9 +22,6 @@ Future<void> main() async {
     );
   } else {
     await Firebase.initializeApp();
-
-    // Initialize Firebase App Check for mobile
-    // await FirebaseAppCheck.instance.activate();
   }
 
   runApp(
