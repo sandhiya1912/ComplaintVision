@@ -180,7 +180,6 @@ void _submitForm() async {
     print("Camera File URLs: $cameraFileUrls");
 
     final complaint = {
-      // 'userId': userId,  // Removed to avoid direct uid storage
       'name': name,
       'phoneNo': phoneNo,
       'city': location,
@@ -192,7 +191,7 @@ void _submitForm() async {
       'cameraFiles': cameraFileUrls,
       'submissionTime': DateTime.now(),
       'progress': 'submitted',
-      'commitment': commitment,  // Add the commitment hash here
+      'commitment': commitment, 
     };
 
     try {
