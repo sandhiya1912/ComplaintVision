@@ -156,69 +156,68 @@ class _GrievancePageState extends State<GrievancePage> {
     return fileUrls;
   }
 
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+void _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
 
-      final userId = UserInfoService.getUserId();
+    final userId = UserInfoService.getUserId();
 
-      // Check if userId is null before proceeding
-      if (userId == null) {
-        // Handle the case where userId is null (e.g., show an error message)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User ID is null. Please login again.')),
-        );
-        return; // Exit the method
-      }
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID is null. Please login again.')),
+      );
+      return;
+    }
 
-      List<String> uploadedFileUrls = await uploadFiles(uploadedFiles);
-      List<String> cameraFileUrls = await uploadFiles(cameraFiles);
+    // Generate nonce and commitment using SimpleZKP
+    final nonce = SimpleZKP.generateNonce();
+    final commitment = SimpleZKP.computeCommitment(userId, nonce);
 
-      // Log the uploaded URLs for debugging purposes
-      print("Uploaded File URLs: $uploadedFileUrls"); // Log uploaded file URLs
-      print("Camera File URLs: $cameraFileUrls"); // Log camera file URLs
+    List<String> uploadedFileUrls = await uploadFiles(uploadedFiles);
+    List<String> cameraFileUrls = await uploadFiles(cameraFiles);
 
-      final complaint = {
-        'userId': userId,
-        'name': name,
-        'phoneNo': phoneNo,
-        'city': location,
-        'grievanceType': grievanceType,
-        'grievanceSubType': grievanceSubType,
-        'description': description,
-        'incidentDateTime': incidentDateTime,
-        'uploadedFiles': uploadedFileUrls,
-        'cameraFiles': cameraFileUrls,
-        'submissionTime': DateTime.now(),
-        'progress': 'submitted',
-      };
+    print("Uploaded File URLs: $uploadedFileUrls");
+    print("Camera File URLs: $cameraFileUrls");
 
-      try {
-        // Assuming the fileComplaint method works asynchronously
-        await Provider.of<ComplaintProvider>(context, listen: false)
-            .fileComplaint(userId, complaint);
+    final complaint = {
+      // 'userId': userId,  // Removed to avoid direct uid storage
+      'name': name,
+      'phoneNo': phoneNo,
+      'city': location,
+      'grievanceType': grievanceType,
+      'grievanceSubType': grievanceSubType,
+      'description': description,
+      'incidentDateTime': incidentDateTime,
+      'uploadedFiles': uploadedFileUrls,
+      'cameraFiles': cameraFileUrls,
+      'submissionTime': DateTime.now(),
+      'progress': 'submitted',
+      'commitment': commitment,  // Add the commitment hash here
+    };
 
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Complaint filed successfully!')),
-        );
+    try {
+      await Provider.of<ComplaintProvider>(context, listen: false)
+          .fileComplaint(userId, complaint);
 
-        // Navigate to the Track Page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TrackPage(),
-          ),
-        );
-      } catch (e) {
-        // Handle error if complaint submission fails
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to file complaint: $e')),
-        );
-        print("Error while filing complaint: $e");
-      }
+      // TODO: Store nonce locally (e.g., SharedPreferences) to prove ownership later
+      // await LocalStorage.saveNonceForComplaint(complaintId, nonce);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Complaint filed successfully!')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => TrackPage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to file complaint: $e')),
+      );
+      print("Error while filing complaint: $e");
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
