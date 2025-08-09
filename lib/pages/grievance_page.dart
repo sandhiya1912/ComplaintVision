@@ -145,36 +145,6 @@ class _GrievancePageState extends State<GrievancePage> {
     }
   }
 
-// Future<String> uploadFile(File file) async {
-//   try {
-//     // Retrieve the App Check token (handle nullability)
-//     String appCheckToken = await FirebaseAppCheck.instance.getToken() ?? '';
-
-//     // Get the file name from the file path
-//     String fileName = path.basename(file.path);
-
-//     // Create a reference to the Firebase Storage location
-//     Reference storageRef = FirebaseStorage.instance.ref().child('complaints/$fileName');
-
-//     // Upload the file to Firebase Storage with App Check token as metadata
-//     UploadTask uploadTask = storageRef.putFile(
-//       file,
-//       SettableMetadata(customMetadata: {'appCheckToken': appCheckToken}),
-//     );
-
-//     // Wait for the upload to complete
-//     TaskSnapshot snapshot = await uploadTask;
-
-//     // Retrieve the download URL after the file is uploaded
-//     String downloadUrl = await snapshot.ref.getDownloadURL();
-
-//     return downloadUrl;
-//   } catch (e) {
-//     print("Error uploading file: $e");
-//     return '';
-//   }
-// }
-
   Future<List<String>> uploadFiles(List<File> files) async {
     List<String> fileUrls = [];
     for (File file in files) {
